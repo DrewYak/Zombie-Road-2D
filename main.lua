@@ -7,6 +7,9 @@ VIRTUAL_WIDTH = 1280
 VIRTUAL_HEIGHT = 720
 
 local background = love.graphics.newImage('background.jpg')
+local backgroundScroll = 0
+local backgroundScrollSpeed = 60
+local BACKGROUND_LOOPING_POINT = 512
 
 
 function love.load()
@@ -28,13 +31,22 @@ end
 function love.keypressed(key)
 	if key == 'escape' then
 		love.event.quit()
+	elseif key == 'd' then
+		backgroundScrollSpeed = backgroundScrollSpeed + 10
+	elseif key == 'a' then
+		backgroundScrollSpeed = backgroundScrollSpeed - 10
 	end
+end
+
+function love.update(dt)
+	backgroundScroll = (backgroundScroll + backgroundScrollSpeed * dt) 
+	% BACKGROUND_LOOPING_POINT
 end
 
 function love.draw()
 	push:start()
 
-	love.graphics.draw(background, 0, 0, 0, 0.5, 0.5)
+	love.graphics.draw(background, -backgroundScroll, 0, 0, 0.5, 0.5)
 
 	push:finish()
 end
