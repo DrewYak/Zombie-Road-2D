@@ -1,4 +1,6 @@
 push = require 'push'
+Class = require 'class'
+require 'Car'
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -9,11 +11,15 @@ VIRTUAL_HEIGHT = 720
 local background = love.graphics.newImage('background.jpg')
 local backgroundScroll = 0
 local backgroundScrollSpeed = 60
-local BACKGROUND_LOOPING_POINT = 512
+local BACKGROUND_SCALE = 0.5
+local BACKGROUND_LOOPING_POINT = 1024 * BACKGROUND_SCALE
+
 
 local speedUp = false
 local speedDown = false
 local handBreak = false
+
+local car = Car()
 
 function love.load()
 	love.window.setTitle('Zombie Road 2D')
@@ -53,9 +59,9 @@ end
 
 function love.update(dt)
 	if handBreak then
-		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 50)		
+		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 50)	
 	elseif speedDown then 
-		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 15)
+		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 25)
 	elseif speedUp then 
 		backgroundScrollSpeed = math.min(5000, backgroundScrollSpeed + 15)
 	end
@@ -67,7 +73,9 @@ end
 function love.draw()
 	push:start()
 
-	love.graphics.draw(background, -backgroundScroll, 0, 0, 0.5, 0.5)
+	love.graphics.draw(background, -backgroundScroll, 0, 0, BACKGROUND_SCALE, BACKGROUND_SCALE)
+
+	car:render()
 
 	push:finish()
 end
