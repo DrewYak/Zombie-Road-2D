@@ -17,9 +17,12 @@ local BACKGROUND_LOOPING_POINT = 1024 * BACKGROUND_SCALE
 local speedUp = false
 local speedDown = false
 local handBreak = false
+local moveToRight = false
+local moveToLeft = false
 
 local car = Car()
 carAmplitude = 0
+speedRL = 10
 
 function love.load()
 	love.window.setTitle('Zombie Road 2D')
@@ -45,6 +48,9 @@ function love.keypressed(key)
 	elseif key == 'd' then
 		speedUp = true
 	end
+
+	if key == 'w' then moveToLeft = true end
+	if key == 's' then moveToRight = true end
 end
 
 function love.keyreleased(key, scancode)
@@ -55,6 +61,10 @@ function love.keyreleased(key, scancode)
 	elseif key == 'd' then
 		speedUp = false
 	end
+
+	if key == 'w' then moveToLeft = false end
+	if key == 's' then moveToRight = false end
+
 end
 
 function love.update(dt)
@@ -70,6 +80,13 @@ function love.update(dt)
 	% BACKGROUND_LOOPING_POINT	
 
 	carAmplitude = backgroundScrollSpeed * dt
+
+	if moveToLeft then
+		car.y = car.y - speedRL * math.sqrt(backgroundScrollSpeed) * dt
+	end
+	if moveToRight then
+		car.y = car.y + speedRL * math.sqrt(backgroundScrollSpeed) * dt
+	end
 end
 
 function love.draw()
