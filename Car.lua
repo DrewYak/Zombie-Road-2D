@@ -2,6 +2,8 @@ Car = Class{}
 
 local CAR_SCALE = 0.3
 
+local carRound = 0
+
 function Car:init()
 	self.image = love.graphics.newImage('car.png')
 	self.width = self.image:getWidth()
@@ -12,5 +14,7 @@ function Car:init()
 end
 
 function Car:render()
-	love.graphics.draw(self.image, self.x, self.y, carRound, CAR_SCALE, CAR_SCALE)
+	x = self.x + math.random(-carAmplitude / 80, carAmplitude / 80)
+	y = self.y + math.random(-carAmplitude / 80, carAmplitude / 80)
+	love.graphics.draw(self.image, x, y, carRound, CAR_SCALE, CAR_SCALE)
 end

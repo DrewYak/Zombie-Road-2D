@@ -14,12 +14,12 @@ local backgroundScrollSpeed = 60
 local BACKGROUND_SCALE = 0.5
 local BACKGROUND_LOOPING_POINT = 1024 * BACKGROUND_SCALE
 
-
 local speedUp = false
 local speedDown = false
 local handBreak = false
 
 local car = Car()
+carAmplitude = 0
 
 function love.load()
 	love.window.setTitle('Zombie Road 2D')
@@ -68,14 +68,27 @@ function love.update(dt)
 
 	backgroundScroll = (backgroundScroll + backgroundScrollSpeed * dt) 
 	% BACKGROUND_LOOPING_POINT	
+
+	carAmplitude = backgroundScrollSpeed * dt
 end
 
 function love.draw()
 	push:start()
 
-	love.graphics.draw(background, -backgroundScroll, 0, 0, BACKGROUND_SCALE, BACKGROUND_SCALE)
-
+	renderBackground()
 	car:render()
+	renderSpeedometer()
 
 	push:finish()
+end
+
+function renderBackground()
+	love.graphics.draw(background, -backgroundScroll, 0, 0, BACKGROUND_SCALE, BACKGROUND_SCALE)
+end
+
+function renderSpeedometer()
+	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
+	love.graphics.setFont(font)
+	speedMsg = "Cкорость: " .. tostring(math.floor(backgroundScrollSpeed / 40)) .. " км/ч"
+	love.graphics.print(speedMsg, 0, 0, 0, 1, 1)
 end
