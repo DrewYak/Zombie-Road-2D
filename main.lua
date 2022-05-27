@@ -14,7 +14,8 @@ local backgroundScrollSpeed = 60
 local BACKGROUND_SCALE = 0.5
 local BACKGROUND_LOOPING_POINT = 1024 * BACKGROUND_SCALE
 
-local speedUp = false
+local speedUp_d = false
+local speedUp_rshift = false
 local speedDown = false
 local handBreak = false
 local moveToRight = false
@@ -39,32 +40,23 @@ function love.resize(w, h)
 end
 
 function love.keypressed(key)
-	if key == 'escape' then
-		love.event.quit()
-	elseif key == 'space' then
-		handBreak = true
-	elseif key == 'a' then
-		speedDown = true
-	elseif key == 'd' then
-		speedUp = true
-	end
+	if key == 'escape' then love.event.quit() end
 
+	if key == 'rshift' then speedUp_rshift = true end
+	if key == 'd' then speedUp_d = true end
+	if key == 'space' then handBreak = true end
 	if key == 'w' then moveToLeft = true end
 	if key == 's' then moveToRight = true end
+	if key == 'a' then	speedDown = true end
 end
 
 function love.keyreleased(key, scancode)
-	if key == 'space' then
-		handBreak = false
-	elseif key == 'a' then
-		speedDown = false
-	elseif key == 'd' then
-		speedUp = false
-	end
-
+	if key == 'rshift' then speedUp_rshift = false end
+	if key == 'd' then speedUp_d = false end
+	if key == 'space' then handBreak = false end
 	if key == 'w' then moveToLeft = false end
 	if key == 's' then moveToRight = false end
-
+	if key == 'a' then	speedDown = false end
 end
 
 function love.update(dt)
@@ -72,7 +64,7 @@ function love.update(dt)
 		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 50)	
 	elseif speedDown then 
 		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 25)
-	elseif speedUp then 
+	elseif speedUp_d or speedUp_rshift then 
 		backgroundScrollSpeed = math.min(5000, backgroundScrollSpeed + 15)
 	end
 
@@ -82,10 +74,10 @@ function love.update(dt)
 	carAmplitude = backgroundScrollSpeed * dt
 
 	if moveToLeft then
-		car.y = car.y - speedRL * math.sqrt(backgroundScrollSpeed) * dt
+		car.y = math.max(0, car.y - speedRL * math.sqrt(backgroundScrollSpeed) * dt)
 	end
 	if moveToRight then
-		car.y = car.y + speedRL * math.sqrt(backgroundScrollSpeed) * dt
+		car.y = math.min(car.y + speedRL * math.sqrt(backgroundScrollSpeed) * dt, VIRTUAL_HEIGHT - car.height)
 	end
 end
 
