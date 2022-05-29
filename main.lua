@@ -60,19 +60,34 @@ function love.keyreleased(key, scancode)
 end
 
 function love.update(dt)
+	updateSpeed()
+	updateBackgroud(dt)
+	updateShake(dt)
+	updateTurns(dt)
+end
+
+function updateSpeed()
 	if handBreak then
 		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 50)	
-	elseif speedDown then 
+	end
+	if speedDown then 
 		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 25)
-	elseif speedUp_d or speedUp_rshift then 
+	end
+	if speedUp_d or speedUp_rshift then 
 		backgroundScrollSpeed = math.min(5000, backgroundScrollSpeed + 15)
 	end
+end
 
+function updateBackgroud(dt)
 	backgroundScroll = (backgroundScroll + backgroundScrollSpeed * dt) 
 	% BACKGROUND_LOOPING_POINT	
+end
 
-	carAmplitude = backgroundScrollSpeed * dt
+function updateShake(dt)
+	car.shake = backgroundScrollSpeed * dt
+end
 
+function updateTurns(dt)
 	if moveToLeft then
 		car.y = math.max(0, car.y - speedRL * math.sqrt(backgroundScrollSpeed) * dt)
 	end

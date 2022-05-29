@@ -11,10 +11,12 @@ function Car:init()
 
 	self.x = VIRTUAL_WIDTH / 2 - (self.width / 2)
 	self.y = VIRTUAL_HEIGHT / 2 - (self.height / 2)
+	self.shake = 0
 end
 
 function Car:render()
-	x = self.x + math.random(-carAmplitude / 80, carAmplitude / 80)
-	y = self.y + math.random(-carAmplitude / 80, carAmplitude / 80)
+	s = self.shake
+	x = self.x + math.random(-s / 80, s / 80)
+	y = self.y + math.random(-s / 80, s / 80)
 	love.graphics.draw(self.image, x, y, carRound, CAR_SCALE, CAR_SCALE)
 end
