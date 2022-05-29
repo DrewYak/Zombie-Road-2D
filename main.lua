@@ -23,6 +23,7 @@ local moveToRight = false
 local moveToLeft = false
 
 local car = Car()
+local wall = Wall()
 
 function love.load()
 	love.window.setTitle('Zombie Road 2D')
@@ -63,6 +64,7 @@ function love.update(dt)
 	updateBackgroud(dt)
 	updateShake(dt)
 	updateTurns(dt)
+	wall:update(dt, backgroundScrollSpeed)
 end
 
 function updateSpeed()
@@ -100,6 +102,7 @@ function love.draw()
 
 	renderBackground()
 	car:render()
+	wall:render()
 	renderSpeedometer()
 
 	push:finish()
