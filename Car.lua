@@ -1,7 +1,6 @@
 Car = Class{}
 
 local CAR_SCALE = 0.3
-
 local carRound = 0
 
 function Car:init()
@@ -12,6 +11,7 @@ function Car:init()
 	self.x = VIRTUAL_WIDTH / 2 - (self.width / 2)
 	self.y = VIRTUAL_HEIGHT / 2 - (self.height / 2)
 	self.shake = 0
+	self.speedRL = 10
 end
 
 function Car:render()

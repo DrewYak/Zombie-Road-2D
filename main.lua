@@ -1,6 +1,7 @@
 push = require 'push'
 Class = require 'class'
 require 'Car'
+require 'Wall'
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -22,8 +23,6 @@ local moveToRight = false
 local moveToLeft = false
 
 local car = Car()
-carAmplitude = 0
-speedRL = 10
 
 function love.load()
 	love.window.setTitle('Zombie Road 2D')
@@ -89,10 +88,10 @@ end
 
 function updateTurns(dt)
 	if moveToLeft then
-		car.y = math.max(0, car.y - speedRL * math.sqrt(backgroundScrollSpeed) * dt)
+		car.y = math.max(0, car.y - car.speedRL * math.sqrt(backgroundScrollSpeed) * dt)
 	end
 	if moveToRight then
-		car.y = math.min(car.y + speedRL * math.sqrt(backgroundScrollSpeed) * dt, VIRTUAL_HEIGHT - car.height)
+		car.y = math.min(car.y + car.speedRL * math.sqrt(backgroundScrollSpeed) * dt, VIRTUAL_HEIGHT - car.height)
 	end
 end
 
