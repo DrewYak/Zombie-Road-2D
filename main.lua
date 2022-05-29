@@ -23,9 +23,11 @@ local moveToRight = false
 local moveToLeft = false
 
 local car = Car()
-local wall = Wall()
+local walls = {}
 
 local distance = 0
+local countWalls = 0
+
 
 function love.load()
 	love.window.setTitle('Zombie Road 2D')
@@ -66,7 +68,7 @@ function love.update(dt)
 	updateBackgroud(dt)
 	updateShake(dt)
 	updateTurns(dt)
-	wall:update(dt, backgroundScrollSpeed)
+	updateWalls(dt)
 	updateDistance(dt)
 end
 
@@ -100,6 +102,21 @@ function updateTurns(dt)
 	end
 end
 
+function updateWalls(dt)
+	-- Пусть стены появляются каждые 0.03 км 
+	if distance / (40 * 3600) - countWalls * 0.01 > 0 then
+		table.insert(walls, Wall())
+		countWalls = countWalls + 1
+	end
+
+	for k, wall in ipairs(walls) do
+		wall:update(dt, backgroundScrollSpeed)
+		if wall.x < -wall.width then
+			table.remove(walls, k)
+		end
+	end
+end
+
 function updateDistance(dt)
 	distance = distance + backgroundScrollSpeed * dt
 end
@@ -109,7 +126,7 @@ function love.draw()
 
 	renderBackground()
 	car:render()
-	wall:render()
+	renderWalls()
 	renderSpeedometer()
 	renderDistance()
 
@@ -120,16 +137,24 @@ function renderBackground()
 	love.graphics.draw(background, -backgroundScroll, 0, 0, BACKGROUND_SCALE, BACKGROUND_SCALE)
 end
 
+function renderWalls()
+	for k, wall in ipairs(walls) do
+		wall:render()
+	end
+end
+
 function renderSpeedometer()
 	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
 	love.graphics.setFont(font)
-	speedMsg = "Cкорость: " .. tostring(math.floor(backgroundScrollSpeed / 40)) .. " км/ч"
-	love.graphics.print(speedMsg, 10, 0, 0, 1, 1)
+	speedMsg = string.format("%3.0f км/ч", backgroundScrollSpeed / 40)
+	love.graphics.printf("Cкорость: ", 0, 0, VIRTUAL_WIDTH - 280, "right")
+	love.graphics.printf(speedMsg, 0, 0, VIRTUAL_WIDTH - 10, "right")
 end
 
 function renderDistance()
 	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
 	love.graphics.setFont(font)
-	speedMsg = string.format("Путь: %.3f км", distance / (40 * 3600))
-	love.graphics.print(speedMsg, 10, 50, 0, 1, 1)	
+	distanceMsg = string.format("%.3f км", distance / (40 * 3600))
+	love.graphics.printf("Путь: ", 0, 50, VIRTUAL_WIDTH - 280, "right")	
+	love.graphics.printf(distanceMsg, 0, 50, VIRTUAL_WIDTH - 10, "right")	
 end

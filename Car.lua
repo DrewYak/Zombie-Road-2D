@@ -8,7 +8,7 @@ function Car:init()
 	self.width = CAR_SCALE * self.image:getWidth()
 	self.height = CAR_SCALE * self.image:getHeight()
 
-	self.x = VIRTUAL_WIDTH / 2 - (self.width / 2)
+	self.x = 100
 	self.y = VIRTUAL_HEIGHT / 2 - (self.height / 2)
 	self.shake = 0
 	self.speedRL = 10
