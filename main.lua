@@ -25,6 +25,8 @@ local moveToLeft = false
 local car = Car()
 local wall = Wall()
 
+local distance = 0
+
 function love.load()
 	love.window.setTitle('Zombie Road 2D')
 
@@ -42,7 +44,7 @@ end
 function love.keypressed(key)
 	if key == 'escape' then love.event.quit() end
 
-	if key == 'rshift' then speedUp_rshift = true end
+	if key == 'rctrl' then speedUp_rshift = true end
 	if key == 'd' then speedUp_d = true end
 	if key == 'space' then handBreak = true end
 	if key == 'w' then moveToLeft = true end
@@ -51,7 +53,7 @@ function love.keypressed(key)
 end
 
 function love.keyreleased(key, scancode)
-	if key == 'rshift' then speedUp_rshift = false end
+	if key == 'rctrl' then speedUp_rshift = false end
 	if key == 'd' then speedUp_d = false end
 	if key == 'space' then handBreak = false end
 	if key == 'w' then moveToLeft = false end
@@ -65,6 +67,7 @@ function love.update(dt)
 	updateShake(dt)
 	updateTurns(dt)
 	wall:update(dt, backgroundScrollSpeed)
+	updateDistance(dt)
 end
 
 function updateSpeed()
@@ -97,6 +100,10 @@ function updateTurns(dt)
 	end
 end
 
+function updateDistance(dt)
+	distance = distance + backgroundScrollSpeed * dt
+end
+
 function love.draw()
 	push:start()
 
@@ -104,6 +111,7 @@ function love.draw()
 	car:render()
 	wall:render()
 	renderSpeedometer()
+	renderDistance()
 
 	push:finish()
 end
@@ -116,5 +124,12 @@ function renderSpeedometer()
 	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
 	love.graphics.setFont(font)
 	speedMsg = "Cкорость: " .. tostring(math.floor(backgroundScrollSpeed / 40)) .. " км/ч"
-	love.graphics.print(speedMsg, 0, 0, 0, 1, 1)
+	love.graphics.print(speedMsg, 10, 0, 0, 1, 1)
+end
+
+function renderDistance()
+	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
+	love.graphics.setFont(font)
+	speedMsg = string.format("Путь: %.3f км", distance / (40 * 3600))
+	love.graphics.print(speedMsg, 10, 50, 0, 1, 1)	
 end
