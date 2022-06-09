@@ -37,6 +37,10 @@ function love.load()
 		fullscreen = false,
 		resizable = true
 	})
+
+	-- font for render speedometer and distance
+	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
+	love.graphics.setFont(font)	
 end
 
 function love.resize(w, h)
@@ -64,15 +68,7 @@ function love.keyreleased(key, scancode)
 end
 
 function love.update(dt)
-	updateSpeed()
-	updateBackgroud(dt)
-	updateShake(dt)
-	updateTurns(dt)
-	updateWalls(dt)
-	updateDistance(dt)
-end
-
-function updateSpeed()
+	-- update backgroundScrollSpeed
 	if handBreak then
 		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 50)	
 	end
@@ -82,28 +78,24 @@ function updateSpeed()
 	if speedUp_d or speedUp_rshift then 
 		backgroundScrollSpeed = math.min(5000, backgroundScrollSpeed + 15)
 	end
-end
 
-function updateBackgroud(dt)
+	-- update backgroud
 	backgroundScroll = (backgroundScroll + backgroundScrollSpeed * dt) 
-	% BACKGROUND_LOOPING_POINT	
-end
+	% BACKGROUND_LOOPING_POINT
 
-function updateShake(dt)
+	-- update car shake
 	car.shake = backgroundScrollSpeed * dt
-end
 
-function updateTurns(dt)
+	-- update car turns
 	if moveToLeft then
 		car.y = math.max(0, car.y - car.speedRL * math.sqrt(backgroundScrollSpeed) * dt)
 	end
 	if moveToRight then
 		car.y = math.min(car.y + car.speedRL * math.sqrt(backgroundScrollSpeed) * dt, VIRTUAL_HEIGHT - car.height)
 	end
-end
 
-function updateWalls(dt)
-	-- Пусть стены появляются каждые 0.02 км 
+	-- update walls
+	-- пусть стены появляются каждые 0.02 км 
 	if distance / (40 * 3600) - countWalls * 0.02 > 0 then
 		table.insert(walls, Wall())
 		countWalls = countWalls + 1
@@ -115,46 +107,35 @@ function updateWalls(dt)
 			table.remove(walls, k)
 		end
 	end
-end
 
-function updateDistance(dt)
+	-- update distance
 	distance = distance + backgroundScrollSpeed * dt
 end
+
 
 function love.draw()
 	push:start()
 
-	renderBackground()
-	car:render()
-	renderWalls()
-	renderSpeedometer()
-	renderDistance()
-
-	push:finish()
-end
-
-function renderBackground()
+	-- render background
 	love.graphics.draw(background, -backgroundScroll, 0, 0, BACKGROUND_SCALE, BACKGROUND_SCALE)
-end
-
-function renderWalls()
+	
+	-- render car
+	car:render()
+	
+	-- render walls
 	for k, wall in ipairs(walls) do
 		wall:render()
 	end
-end
 
-function renderSpeedometer()
-	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
-	love.graphics.setFont(font)
+	-- render speedometer
 	speedMsg = string.format("%3.0f км/ч", backgroundScrollSpeed / 40)
 	love.graphics.printf("Cкорость: ", 0, 0, VIRTUAL_WIDTH - 280, "right")
 	love.graphics.printf(speedMsg, 0, 0, VIRTUAL_WIDTH - 10, "right")
-end
 
-function renderDistance()
-	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
-	love.graphics.setFont(font)
+	-- render distance
 	distanceMsg = string.format("%.3f км", distance / (40 * 3600))
 	love.graphics.printf("Путь: ", 0, 50, VIRTUAL_WIDTH - 280, "right")	
-	love.graphics.printf(distanceMsg, 0, 50, VIRTUAL_WIDTH - 10, "right")	
+	love.graphics.printf(distanceMsg, 0, 50, VIRTUAL_WIDTH - 10, "right")
+
+	push:finish()
 end
