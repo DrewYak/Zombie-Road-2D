@@ -12,7 +12,7 @@ VIRTUAL_HEIGHT = 720
 local background = love.graphics.newImage('background.jpg')
 local backgroundScroll = 0
 local backgroundScrollSpeed = 60
-local BACKGROUND_SCALE = 0.5
+local BACKGROUND_SCALE = 1
 local BACKGROUND_LOOPING_POINT = 1024 * BACKGROUND_SCALE
 
 local speedUp_d = false
@@ -103,8 +103,8 @@ function updateTurns(dt)
 end
 
 function updateWalls(dt)
-	-- Пусть стены появляются каждые 0.03 км 
-	if distance / (40 * 3600) - countWalls * 0.01 > 0 then
+	-- Пусть стены появляются каждые 0.02 км 
+	if distance / (40 * 3600) - countWalls * 0.02 > 0 then
 		table.insert(walls, Wall())
 		countWalls = countWalls + 1
 	end
