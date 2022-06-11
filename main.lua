@@ -12,7 +12,7 @@ VIRTUAL_HEIGHT = 720
 local background = love.graphics.newImage('background.jpg')
 local backgroundScroll = 0
 local backgroundScrollSpeed = 60
-local BACKGROUND_SCALE = 1
+local BACKGROUND_SCALE = 0.5
 local BACKGROUND_LOOPING_POINT = 1024 * BACKGROUND_SCALE
 
 local speedUp_d = false
@@ -28,6 +28,7 @@ local walls = {}
 local distance = 0
 local countWalls = 0
 
+local scrolling = true 
 
 function love.load()
 	love.window.setTitle('Zombie Road 2D')
@@ -68,48 +69,55 @@ function love.keyreleased(key, scancode)
 end
 
 function love.update(dt)
-	-- update backgroundScrollSpeed
-	if handBreak then
-		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 50)	
-	end
-	if speedDown then 
-		backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 25)
-	end
-	if speedUp_d or speedUp_rshift then 
-		backgroundScrollSpeed = math.min(5000, backgroundScrollSpeed + 15)
-	end
+	if scrolling then
 
-	-- update backgroud
-	backgroundScroll = (backgroundScroll + backgroundScrollSpeed * dt) 
-	% BACKGROUND_LOOPING_POINT
 
-	-- update car shake
-	car.shake = backgroundScrollSpeed * dt
-
-	-- update car turns
-	if moveToLeft then
-		car.y = math.max(0, car.y - car.speedRL * math.sqrt(backgroundScrollSpeed) * dt)
-	end
-	if moveToRight then
-		car.y = math.min(car.y + car.speedRL * math.sqrt(backgroundScrollSpeed) * dt, VIRTUAL_HEIGHT - car.height)
-	end
-
-	-- update walls
-	-- пусть стены появляются каждые 0.02 км 
-	if distance / (40 * 3600) - countWalls * 0.02 > 0 then
-		table.insert(walls, Wall())
-		countWalls = countWalls + 1
-	end
-
-	for k, wall in ipairs(walls) do
-		wall:update(dt, backgroundScrollSpeed)
-		if wall.x < -wall.width then
-			table.remove(walls, k)
+		-- update backgroundScrollSpeed
+		if handBreak then
+			backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 50)	
 		end
-	end
+		if speedDown then 
+			backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 25)
+		end
+		if speedUp_d or speedUp_rshift then 
+			backgroundScrollSpeed = math.min(5000, backgroundScrollSpeed + 15)
+		end
 
-	-- update distance
-	distance = distance + backgroundScrollSpeed * dt
+		-- update backgroud
+		backgroundScroll = (backgroundScroll + backgroundScrollSpeed * dt) 
+		% BACKGROUND_LOOPING_POINT
+
+		-- update car turns
+		if moveToLeft then
+			car.y = math.max(0, car.y - car.speedRL * math.sqrt(backgroundScrollSpeed) * dt)
+		end
+		if moveToRight then
+			car.y = math.min(car.y + car.speedRL * math.sqrt(backgroundScrollSpeed) * dt, VIRTUAL_HEIGHT - car.height)
+		end
+
+		-- update walls (пусть стены появляются каждые 0.02 км)
+		if distance / (40 * 3600) - countWalls * 0.02 > 0 then
+			table.insert(walls, Wall())
+			countWalls = countWalls + 1
+		end
+
+		for k, wall in ipairs(walls) do
+			wall:update(dt, backgroundScrollSpeed)
+			if wall.x < -wall.width then
+				table.remove(walls, k)
+			end
+			if car:collides(wall) then
+				scrolling = false
+				backgroundScrollSpeed = 0
+			end
+		end
+
+		-- update car shake
+		car.shake = backgroundScrollSpeed * dt
+		
+		-- update distance
+		distance = distance + backgroundScrollSpeed * dt
+	end
 end
 
 

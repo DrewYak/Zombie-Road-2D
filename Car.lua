@@ -13,6 +13,15 @@ function Car:init()
 	self.speedRL = 10
 end
 
+function Car:collides(wall)
+	if (self.x + self.width < wall.x + 5) or (wall.x + wall.width < self.x + 5) or 
+	   (self.y + self.height < wall.y + 5) or (wall.y + wall.height < self.y + 5) then
+	   	return false
+	else
+		return true
+	end
+end
+
 function Car:render()
 	s = self.shake
 	x = self.x + math.random(-s / 80, s / 80)

@@ -1,6 +1,6 @@
 Wall = Class{}
 
-local WALL_SCALE = 2
+local WALL_SCALE = 1.5
 local WALL_IMAGE = love.graphics.newImage('wall.png')
 
 function Wall:init()
