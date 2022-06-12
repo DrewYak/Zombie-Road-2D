@@ -25,7 +25,9 @@ local moveToLeft = false
 local car = Car()
 local walls = {}
 
-local distance = 0
+local currentDistance = 0
+local finalDistanceInKilometers = 0.100
+local finalDistance = finalDistanceInKilometers * 40 * 3600
 local countWalls = 0
 
 local scrolling = true 
@@ -39,9 +41,30 @@ function love.load()
 		resizable = true
 	})
 
-	-- font for render speedometer and distance
+	-- font for render speedometer and currentDistance
 	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
 	love.graphics.setFont(font)	
+
+	-- Добавляем "итоговые" стены, через которыедолжен проехать игрок.
+	wall = Wall()
+	wall.x = finalDistance + 100
+	wall.y = VIRTUAL_HEIGHT - wall.height
+	table.insert(walls, wall)
+
+	wall = Wall()
+	wall.x = finalDistance + 100
+	wall.y = VIRTUAL_HEIGHT - 2 * wall.height
+	table.insert(walls, wall)
+	
+	wall = Wall()
+	wall.x = finalDistance + 100
+	wall.y = 0
+	table.insert(walls, wall)
+
+	wall = Wall()
+	wall.x = finalDistance + 100
+	wall.y = 0 + wall.height
+	table.insert(walls, wall)
 end
 
 function love.resize(w, h)
@@ -71,7 +94,6 @@ end
 function love.update(dt)
 	if scrolling then
 
-
 		-- update backgroundScrollSpeed
 		if handBreak then
 			backgroundScrollSpeed = math.max(0, backgroundScrollSpeed - 50)	
@@ -89,14 +111,15 @@ function love.update(dt)
 
 		-- update car turns
 		if moveToLeft then
-			car.y = math.max(0, car.y - car.speedRL * math.sqrt(backgroundScrollSpeed) * dt)
+			car.y = math.max(0, car.y - car.speedRL * 2.5 * math.sqrt(backgroundScrollSpeed) * dt)
 		end
 		if moveToRight then
-			car.y = math.min(car.y + car.speedRL * math.sqrt(backgroundScrollSpeed) * dt, VIRTUAL_HEIGHT - car.height)
+			car.y = math.min(car.y + car.speedRL * 2.5 * math.sqrt(backgroundScrollSpeed) * dt, VIRTUAL_HEIGHT - car.height)
 		end
 
 		-- update walls (пусть стены появляются каждые 0.02 км)
-		if distance / (40 * 3600) - countWalls * 0.02 > 0 then
+		if currentDistance / (40 * 3600) - countWalls * 0.02 > 0 and 
+		   currentDistance / (40 * 3600) + 0.020 <= finalDistance / (40 * 3600) then
 			table.insert(walls, Wall())
 			countWalls = countWalls + 1
 		end
@@ -106,17 +129,26 @@ function love.update(dt)
 			if wall.x < -wall.width then
 				table.remove(walls, k)
 			end
+			-- при столкновении авто со стеной останавливаем игру
 			if car:collides(wall) then
 				scrolling = false
 				backgroundScrollSpeed = 0
 			end
 		end
 
+		-- при прохождении всей дистанции останавливаем игру
+		if currentDistance >= finalDistance then
+			scrolling = false
+			backgroundScrollSpeed = 0
+		end		
+
 		-- update car shake
 		car.shake = backgroundScrollSpeed * dt
 		
-		-- update distance
-		distance = distance + backgroundScrollSpeed * dt
+		-- update currentDistance
+		currentDistance = currentDistance + backgroundScrollSpeed * dt
+
+
 	end
 end
 
@@ -140,10 +172,10 @@ function love.draw()
 	love.graphics.printf("Cкорость: ", 0, 0, VIRTUAL_WIDTH - 280, "right")
 	love.graphics.printf(speedMsg, 0, 0, VIRTUAL_WIDTH - 10, "right")
 
-	-- render distance
-	distanceMsg = string.format("%.3f км", distance / (40 * 3600))
+	-- render currentDistance
+	currentDistanceMsg = string.format("%.3f км", currentDistance / (40 * 3600))
 	love.graphics.printf("Путь: ", 0, 50, VIRTUAL_WIDTH - 280, "right")	
-	love.graphics.printf(distanceMsg, 0, 50, VIRTUAL_WIDTH - 10, "right")
+	love.graphics.printf(currentDistanceMsg, 0, 50, VIRTUAL_WIDTH - 10, "right")
 
 	push:finish()
 end
