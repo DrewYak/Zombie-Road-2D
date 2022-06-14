@@ -26,11 +26,22 @@ local car = Car()
 local walls = {}
 
 local currentDistance = 0
-local finalDistanceInKilometers = 0.100
+local finalDistanceInKilometers = 0.050
 local finalDistance = finalDistanceInKilometers * 40 * 3600
 local countWalls = 0
 
 local scrolling = true 
+
+local gameStatus = 'MOVEMENT'
+-- может принимать значения 
+-- 'MOVEMENT' - автомобиль движется по трассе 
+-- 'VICTORY' - автомобиль прошёл всю дистанцию без столкновений
+-- 'COLLISION' - автомобиль столкнулся с препятствием
+
+-- font for render speedometer and currentDistance
+local font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
+-- font for render victoryMsg and collisionMsg
+local fontGameOver = love.graphics.newFont("Xolonium-Regular.ttf", 70)
 
 function love.load()
 	love.window.setTitle('Zombie Road 2D')
@@ -41,11 +52,10 @@ function love.load()
 		resizable = true
 	})
 
-	-- font for render speedometer and currentDistance
-	font = love.graphics.newFont("Xolonium-Regular.ttf", 50)
+	-- set font for render speedometer and currentDistance
 	love.graphics.setFont(font)	
 
-	-- Добавляем "итоговые" стены, через которыедолжен проехать игрок.
+	-- добавляем "итоговые" стены, сквозь которые должен проехать игрок
 	wall = Wall()
 	wall.x = finalDistance + 100
 	wall.y = VIRTUAL_HEIGHT - wall.height
@@ -117,8 +127,10 @@ function love.update(dt)
 			car.y = math.min(car.y + car.speedRL * 2.5 * math.sqrt(backgroundScrollSpeed) * dt, VIRTUAL_HEIGHT - car.height)
 		end
 
-		-- update walls (пусть стены появляются каждые 0.02 км)
-		if currentDistance / (40 * 3600) - countWalls * 0.02 > 0 and 
+		-- update walls
+		-- пусть стены появляются каждые 0.020 км
+		-- пусть стены не появляются в последние 0.020 км
+		if currentDistance / (40 * 3600) - countWalls * 0.020 > 0 and 
 		   currentDistance / (40 * 3600) + 0.020 <= finalDistance / (40 * 3600) then
 			table.insert(walls, Wall())
 			countWalls = countWalls + 1
@@ -129,17 +141,19 @@ function love.update(dt)
 			if wall.x < -wall.width then
 				table.remove(walls, k)
 			end
-			-- при столкновении авто со стеной останавливаем игру
+			-- при столкновении авто со стеной останавливаем игру и меняем статус игры
 			if car:collides(wall) then
 				scrolling = false
 				backgroundScrollSpeed = 0
+				gameStatus = 'COLLISION'
 			end
 		end
 
-		-- при прохождении всей дистанции останавливаем игру
+		-- при прохождении всей дистанции останавливаем игру и меняем статус игры
 		if currentDistance >= finalDistance then
 			scrolling = false
 			backgroundScrollSpeed = 0
+			gameStatus = 'VICTORY'
 		end		
 
 		-- update car shake
@@ -147,7 +161,6 @@ function love.update(dt)
 		
 		-- update currentDistance
 		currentDistance = currentDistance + backgroundScrollSpeed * dt
-
 
 	end
 end
@@ -176,6 +189,26 @@ function love.draw()
 	currentDistanceMsg = string.format("%.3f км", currentDistance / (40 * 3600))
 	love.graphics.printf("Путь: ", 0, 50, VIRTUAL_WIDTH - 280, "right")	
 	love.graphics.printf(currentDistanceMsg, 0, 50, VIRTUAL_WIDTH - 10, "right")
+
+	-- render victoryMsg
+	if gameStatus == 'VICTORY' then
+		-- set font for render victoryMsg
+		love.graphics.setFont(fontGameOver)	
+		victoryMsg = string.format("ПОБЕДА!\nВы прошли всю дистанцию!")
+		love.graphics.printf(victoryMsg, 0, VIRTUAL_HEIGHT / 2 - 50, VIRTUAL_WIDTH, "center")
+		-- set font for render speedometer and currentDistance
+		love.graphics.setFont(font)	
+	end
+
+	-- render collisionMsg
+	if gameStatus == 'COLLISION' then
+		-- set font for render collisionMsg
+		love.graphics.setFont(fontGameOver)	
+		collisionMsg = string.format("ПОРАЖЕНИЕ!\nВы столкнулись с препятствием!")
+		love.graphics.printf(collisionMsg, 0, VIRTUAL_HEIGHT / 2 - 50, VIRTUAL_WIDTH, "center")
+		-- set font for render speedometer and currentDistance
+		love.graphics.setFont(font)	
+	end
 
 	push:finish()
 end
